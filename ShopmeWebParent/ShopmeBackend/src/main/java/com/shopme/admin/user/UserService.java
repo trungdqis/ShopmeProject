@@ -3,11 +3,14 @@ package com.shopme.admin.user;
 import com.shopme.common.entity.Role;
 import com.shopme.common.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Objects;
 
 @Service
 public class UserService {
@@ -32,7 +35,19 @@ public class UserService {
     }
 
     public void save(User user) {
-        encodePassword(user);
+        boolean isUpdatingUser = (null != user.getId());
+
+        if (isUpdatingUser) {
+            var existingUser = userRepository.findById(user.getId()).get();
+
+            if (existingUser.getPassword().isEmpty()) {
+                user.setPassword(existingUser.getPassword());
+            } else {
+                encodePassword(user);
+            }
+        } else {
+            encodePassword(user);
+        }
         userRepository.save(user);
     }
 
@@ -41,8 +56,32 @@ public class UserService {
         user.setPassword(encodedPassword);
     }
 
-    public boolean isEmailUnique(String email) {
+    public boolean isEmailUnique(Integer id, String email) {
         var userByEmail = userRepository.getUserByEmail(email);
-        return null == userByEmail;
+
+        if (null == userByEmail) {
+            return true;
+        }
+
+        boolean isCreatingNew = (null == id);
+
+        if (isCreatingNew) {
+            if (null != userByEmail) {
+                return false;
+            }
+        } else {
+            return Objects.equals(id, userByEmail.getId());
+        }
+
+        return true;
+    }
+
+    public User get(Integer id) throws UserNotFoundException {
+        try {
+            return userRepository.findById(id).get();
+        } catch (NoSuchElementException ex) {
+            throw new UserNotFoundException("Could not find any user with ID " + id);
+        }
+
     }
 }
