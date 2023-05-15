@@ -93,4 +93,12 @@ class UserRepositoryTests {
         Assertions.assertThat(userByEmail).isNotNull();
     }
 
+    @Test
+    void testCountById() {
+        Integer id = 1;
+        var countById = userRepository.countById(id);
+
+        Assertions.assertThat(countById).isNotNull().isPositive();
+    }
+
 }
