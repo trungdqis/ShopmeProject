@@ -101,4 +101,15 @@ class UserRepositoryTests {
         Assertions.assertThat(countById).isNotNull().isPositive();
     }
 
+    @Test
+    void testDisableUser() {
+        Integer id = 1;
+        userRepository.updateEnabledStatus(id, false);
+    }
+
+    @Test
+    void testEnableUser() {
+        Integer id = 1;
+        userRepository.updateEnabledStatus(id, true);
+    }
 }
