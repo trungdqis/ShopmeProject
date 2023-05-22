@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
@@ -79,7 +80,7 @@ public class UserController {
 
     @PostMapping("/users/save")
     public String saveUser(User user, RedirectAttributes redirectAttributes,
-                           @RequestParam("image")MultipartFile multipartFile) throws IOException {
+                           @RequestParam("image") MultipartFile multipartFile) throws IOException {
         if (!multipartFile.isEmpty()) {
             String fileName = StringUtils.cleanPath(Objects.requireNonNull(multipartFile.getOriginalFilename()));
             user.setPhotos(fileName);
@@ -146,5 +147,26 @@ public class UserController {
 
         redirectAttributes.addFlashAttribute("message", message);
         return "redirect:/users";
+    }
+
+    @GetMapping("/users/export/csv")
+    public void exportToCSV(HttpServletResponse response) throws IOException {
+        List<User> users = userService.listAll();
+        UserCsvExporter exporter = new UserCsvExporter();
+        exporter.export(users, response);
+    }
+
+    @GetMapping("/users/export/excel")
+    public void exportToExcel(HttpServletResponse response) throws IOException {
+        List<User> users = userService.listAll();
+        UserExcelExporter exporter = new UserExcelExporter();
+        exporter.export(users, response);
+    }
+
+    @GetMapping("/users/export/pdf")
+    public void exportToPDF(HttpServletResponse response) throws IOException {
+        List<User> users = userService.listAll();
+        UserPdfExporter exporter = new UserPdfExporter();
+        exporter.export(users, response);
     }
 }
