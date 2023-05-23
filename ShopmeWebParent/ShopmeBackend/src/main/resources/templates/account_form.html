@@ -1,22 +1,27 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="fragments :: page_head(${pageTitle})"></head>
+<head th:replace="fragments :: page_head('Your Account Details')"></head>
 <body>
 <div class="container-fluid">
     <div th:replace="navigation :: menu"></div>
-    <div>
-        <h2>Manage Users | [[${pageTitle}]]</h2>
-    </div>
 
-    <form th:action="@{/users/save}" method="post" style="max-width: 700px; margin: 0 auto" th:object="${user}"
-          enctype="multipart/form-data"
-          onsubmit="return checkEmailUnique(this)">
+    <form th:action="@{/account/update}" method="post" style="max-width: 700px; margin: 0 auto" th:object="${user}"
+          enctype="multipart/form-data">
         <input type="hidden" th:field="*{id}">
+
+        <div class="text-center">
+            <h2>Your Account Details</h2>
+        </div>
+
+        <div th:if="${null != message}" class="alert alert-success text-center">
+            [[${message}]]
+        </div>
+
         <div class="border border-secondary rounded p-3">
             <div class="form-group row">
                 <label class="col-sm-4 col-form-label">E-mail:</label>
                 <div class="col-sm-8">
-                    <input type="email" class="form-control" th:field="*{email}" required minlength="8" maxlength="128" />
+                    <input type="email" class="form-control" th:field="*{email}" readonly />
                 </div>
             </div>
 
@@ -37,22 +42,24 @@
             <div class="form-group row">
                 <label class="col-sm-4 col-form-label">Password:</label>
                 <div class="col-sm-8">
-                    <input th:if="${null == user.id}" type="password" class="form-control" th:field="*{password}" required
-                           minlength="6" maxlength="20" />
-
-                    <input th:if="${null != user.id}" type="password" class="form-control" th:field="*{password}"
-                           minlength="6" maxlength="20" />
+                    <input type="password" th:field="*{password}" class="form-control"
+                           placeholder="Leave blank if you don't want to change password"
+                           minlength="6" maxlength="20" oninput="checkPasswordMatch(this)" />
                 </div>
             </div>
 
             <div class="form-group row">
-                <label class="col-sm-4 col-form-label">Roles:</label>
+                <label class="col-sm-4 col-form-label">Confirm Password:</label>
                 <div class="col-sm-8">
-                    <th:block th:each="role : ${listRoles}">
-                        <input class="m-2" type="checkbox" th:field="*{roles}" th:text="${role.name}" th:value="${role.id}"/>
-                        - <small>[[${role.description}]]</small>
-                        <br/>
-                    </th:block>
+                    <input type="password" id="confirmPassword" class="form-control"
+                           oninput="checkPasswordMatch(document.getElementById('confirmPassword'))" />
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-sm-4 col-form-label">Assigned Roles:</label>
+                <div class="col-sm-8">
+                    <span><b>[[${user.roles}]]</b></span>
                 </div>
             </div>
 
@@ -131,32 +138,12 @@
         reader.readAsDataURL(file);
     }
 
-    function checkEmailUnique(form) {
-        let url = "[[@{/users/check_email}]]";
-        let userEmail = $("#email").val();
-        let userId = $("#id").val();
-        let csrfValue = $("input[name='_csrf']").val();
-        let params = {id: userId, email: userEmail, _csrf: csrfValue};
-
-        $.post(url, params, function(response) {
-            if ("OK" === response) {
-                form.submit();
-            } else if ("Duplicated" === response) {
-                showModalDialog("Warning", "There is another user having the mail " + userEmail);
-            } else {
-                showModalDialog("Error", "Unknown response from server");
-            }
-        }).fail(function() {
-            showModalDialog("Error", "Could not connect to the server");
-        });
-
-        return false;
-    }
-
-    function showModalDialog(title, message) {
-        $("#modalTitle").text(title);
-        $("#modalBody").text(message);
-        $("#modalDialog").modal();
+    function checkPasswordMatch(confirmPassword) {
+        if ($("#password").val() !== confirmPassword.value) {
+            confirmPassword.setCustomValidity("Passwords do not match!");
+        } else {
+            confirmPassword.setCustomValidity("");
+        }
     }
 </script>
 </html>

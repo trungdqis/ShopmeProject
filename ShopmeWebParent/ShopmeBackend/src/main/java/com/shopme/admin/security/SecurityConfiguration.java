@@ -35,12 +35,13 @@ public class SecurityConfiguration {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeRequests()
                 .anyRequest().authenticated()
-                .and()
-                .formLogin()
+                .and().formLogin()
                     .loginPage("/login")
                     .usernameParameter("email")
                     .permitAll()
-                .and().logout().permitAll();
+                .and().logout().permitAll()
+                .and().rememberMe().key("AbcDefHijKlmnOpqrs_1234567890")
+                    .tokenValiditySeconds(7 * 24 * 60 * 60);
 
         http.authenticationProvider(authenticationProvider());
 
