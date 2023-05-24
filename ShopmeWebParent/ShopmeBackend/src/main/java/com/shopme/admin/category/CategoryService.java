@@ -17,19 +17,23 @@ public class CategoryService {
         return (List<Category>) categoryRepository.findAll();
     }
 
+    public Category save(Category category) {
+        return categoryRepository.save(category);
+    }
+
     public List<Category> listCategoriesUsedInForm() {
         List<Category> categoriesUsedInForm = new ArrayList<>();
         var categoriesInDB = categoryRepository.findAll();
 
         for (Category category : categoriesInDB) {
             if (null == category.getParent()) {
-                categoriesUsedInForm.add(new Category(category.getName()));
+                categoriesUsedInForm.add(Category.copyIdAndName(category));
 
                 var children = category.getChildren();
 
                 for (Category subCategory : children) {
                     String name = "--" + subCategory.getName();
-                    categoriesUsedInForm.add(new Category(name));
+                    categoriesUsedInForm.add(Category.copyIdAndName(subCategory.getId(), name));
                     listChildren(categoriesUsedInForm, subCategory, 1);
                 }
             }
@@ -46,7 +50,7 @@ public class CategoryService {
             String name = "--".repeat(Math.max(0, newSubLevel)) +
                     subCategory.getName();
 
-            categoriesUsedInForm.add(new Category(name));
+            categoriesUsedInForm.add(Category.copyIdAndName(subCategory.getId(), name));
 
             listChildren(categoriesUsedInForm, subCategory, newSubLevel);
         }

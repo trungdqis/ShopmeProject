@@ -6,8 +6,8 @@ $(document).ready(function() {
     $("#fileImage").change(function() {
         let fileSize = this.files[0].size;
 
-        if (1048576 < fileSize) {
-            this.setCustomValidity("You must choose an image less than 1MB!");
+        if (102400 < fileSize) {
+            this.setCustomValidity("You must choose an image less than 100KB!");
             this.reportValidity();
         } else {
             this.setCustomValidity("");
