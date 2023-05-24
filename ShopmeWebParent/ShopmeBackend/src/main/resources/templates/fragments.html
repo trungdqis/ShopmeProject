@@ -32,7 +32,7 @@
        th:href="@{'/users/page/' + ${pageNum} + '?sortField=' + ${sortField}
                     + '&sortDir=' + ${sortDir} + ${null != keyword ? '&keyword=' + keyword : ''}}">[[${label}]]</a>
 
-    <div th:fragment="category_status">
+    <div th:fragment="category_status" th:remove="tag">
         <a th:if="${category.enabled}" class="fas fa-check-circle fa-2x icon-green"
            th:href="@{'/categories/' + ${category.id} + '/enabled/false'}"
            title="Disable this category">
@@ -43,12 +43,15 @@
         </a>
     </div>
 
-    <div th:fragment="category_actions">
+    <div th:fragment="category_actions" th:remove="tag">
         <a class="fas fa-edit fa-2x icon-green" th:href="@{'/categories/edit/' + ${category.id}}"
            title="Edit this category"></a>
         &nbsp;
-        <a class="fas fa-trash fa-2x icon-dark link-delete" th:href="@{'/categories/delete/' + ${category.id}}"
-           title="Delete this category" th:categoryId="${category.id}"></a>
+        <th:block th:if="${!category.hasChildren}">
+            <a class="fas fa-trash fa-2x icon-dark link-delete" th:href="@{'/categories/delete/' + ${category.id}}"
+               title="Delete this category" th:entityId="${category.id}"></a>
+        </th:block>
+
     </div>
 </body>
 </html>

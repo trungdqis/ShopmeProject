@@ -1,8 +1,10 @@
 package com.shopme.admin.category;
 
 import com.shopme.admin.FileUploadUtil;
+import com.shopme.admin.user.UserNotFoundException;
 import com.shopme.common.entity.Category;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.repository.query.Param;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Controller;
@@ -26,16 +28,22 @@ public class CategoryController {
     private CategoryService categoryService;
 
     @GetMapping("/categories")
-    public String listAll(Model model) {
-        var categories = categoryService.listAll();
+    public String listAll(@Param("sortDir") String sortDir, Model model) {
+        if (null == sortDir || sortDir.isEmpty()) {
+            sortDir = "asc";
+        }
+        List<Category> categories = categoryService.listAll(sortDir);
+        String reverseSortDir = "asc".equals(sortDir) ? "desc" : "asc";
+
         model.addAttribute("listCategories", categories);
+        model.addAttribute("reverseSortDir", reverseSortDir);
 
         return "categories/categories";
     }
 
     @GetMapping("/categories/new")
     public String newCategory(Model model) {
-        var categories = categoryService.listCategoriesUsedInForm();
+        List<Category> categories = categoryService.listCategoriesUsedInForm();
 
         model.addAttribute("category", new Category());
         model.addAttribute("listCategories", categories);
@@ -81,5 +89,34 @@ public class CategoryController {
 
             return "redirect:/categories";
         }
+    }
+
+    @GetMapping("/categories/{id}/enabled/{status}")
+    public String updateCategoryEnabledStatus(@PathVariable("id") Integer id, @PathVariable("status") boolean enabled,
+                                          RedirectAttributes redirectAttributes) {
+        categoryService.updateCategoryEnabledStatus(id, enabled);
+        String status = enabled ? "enabled" : "disabled";
+        String message = "The category ID " + id + " has been " + status;
+
+        redirectAttributes.addFlashAttribute("message", message);
+
+        return "redirect:/categories";
+    }
+
+    @GetMapping("/categories/delete/{id}")
+    public String deleteCategory(@PathVariable(name = "id") Integer id, Model model, RedirectAttributes redirectAttributes) {
+        try {
+            categoryService.delete(id);
+
+            String categoryDir = "../category-images/" + id;
+            FileUploadUtil.removeDir(categoryDir);
+
+            redirectAttributes.addFlashAttribute("message",
+                    "The category ID " + id + " has been deleted successfully");
+        } catch (CategoryNotFoundException exception) {
+            redirectAttributes.addFlashAttribute("message", exception.getMessage());
+        }
+
+        return "redirect:/categories";
     }
 }
