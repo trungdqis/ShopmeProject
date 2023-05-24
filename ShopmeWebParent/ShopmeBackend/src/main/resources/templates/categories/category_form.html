@@ -9,7 +9,7 @@
     </div>
 
     <form th:action="@{/categories/save}" method="post" style="max-width: 500px; margin: 0 auto" th:object="${category}"
-          enctype="multipart/form-data">
+          enctype="multipart/form-data" onsubmit="return checkUnique(this)">
         <input type="hidden" th:field="*{id}">
         <div class="border border-secondary rounded p-3">
             <div class="form-group row">
@@ -44,10 +44,11 @@
                 <label class="col-sm-4 col-form-label">Image:</label>
                 <div class="col-sm-8">
                     <input type="hidden" th:field="*{image}" />
-                    <input type="file" id="fileImage" name="fileImage" accept="image/png, image/jpeg" class="mb-2" required />
+                    <input type="file" id="fileImage" name="fileImage" accept="image/png, image/jpeg" class="mb-2"
+                           th:required="${null == category.imagePath}" />
 
                     <div class="mt-2">
-                        <img id="thumbnail" alt="Image preview" class="img-fluid" th:src="@{/images/image-thumbnail.png}" />
+                        <img id="thumbnail" alt="Image preview" class="img-fluid" th:src="@{${category.imagePath}}" />
                     </div>
                 </div>
             </div>
@@ -66,30 +67,39 @@
         </div>
     </form>
 
-    <div class="modal fade text-center" id="modalDialog">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title" id="modalTitle"></h4>
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                </div>
-
-                <div class="modal-body">
-                    <span id="modalBody"></span>
-                </div>
-
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <div th:replace="modal_fragments :: modal_dialog"></div>
 
     <div th:replace="fragments :: footer"></div>
 </div>
 </body>
 <script type="text/javascript">
     moduleURL = "[[@{/categories}]]";
+
+    function checkUnique(form) {
+        let categoryId = $("#id").val();
+        let categoryName = $("#name").val();
+        let categoryAlias = $("#alias").val();
+        let csrfValue = $("input[name='_csrf']").val();
+        let url = "[[@{/categories/check_unique}]]";
+
+        let params = {id: categoryId, name: categoryName, alias: categoryAlias, _csrf: csrfValue};
+
+        $.post(url, params, function(response) {
+            if ("OK" === response) {
+                form.submit();
+            } else if ("DuplicateName" === response) {
+                showWarningModal("There is another category having same name " + categoryName);
+            } else if ("DuplicateAlias" === response) {
+                showWarningModal("There is another category having same alias " + categoryAlias);
+            } else {
+                showErrorModal("Unknown response from the server")
+            }
+        }).fail(function() {
+            showErrorModal("Could not connect to the server")
+        })
+
+        return false;
+    }
 </script>
 <script th:src="@{/js/common_form.js}"></script>
 

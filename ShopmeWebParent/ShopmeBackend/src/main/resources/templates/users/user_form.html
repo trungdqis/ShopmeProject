@@ -116,21 +116,15 @@
             if ("OK" === response) {
                 form.submit();
             } else if ("Duplicated" === response) {
-                showModalDialog("Warning", "There is another user having the mail " + userEmail);
+                showWarningModal("There is another user having the mail " + userEmail);
             } else {
-                showModalDialog("Error", "Unknown response from server");
+                showErrorModal("Unknown response from server");
             }
         }).fail(function() {
-            showModalDialog("Error", "Could not connect to the server");
+            showErrorModal("Could not connect to the server");
         });
 
         return false;
-    }
-
-    function showModalDialog(title, message) {
-        $("#modalTitle").text(title);
-        $("#modalBody").text(message);
-        $("#modalDialog").modal();
     }
 </script>
 <script th:src="@{/js/common_form.js}"></script>
