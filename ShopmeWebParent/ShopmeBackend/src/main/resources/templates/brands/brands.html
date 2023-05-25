@@ -16,16 +16,16 @@
         <table class="table table-bordered table-striped table-hover table-responsive-xl">
             <thead class="thead-dark">
                 <tr>
-                    <th>Brand ID</th>
+                    <th class="hideable-column">Brand ID</th>
                     <th>Logo</th>
-                    <th>Brand Name</th>
+                    <th th:replace="fragments :: column_link('/brands', 'name', 'Brand Name', 'none')"></th>
                     <th>Categories</th>
                     <th></th>
                 </tr>
             </thead>
             <tbody>
-                <tr th:each="brand : ${listBrands}">
-                    <td>[[${brand.id}]]</td>
+                <tr th:each="brand : ${brands}">
+                    <td class="hideable-column">[[${brand.id}]]</td>
                     <td>
                         <img th:src="@{${brand.logoPath}}" style="width: 100px" class="img-fluid" />
                     </td>
@@ -44,6 +44,25 @@
             </tbody>
         </table>
     </div>
+
+    <div class="less-details">
+        <div th:each="brand : ${brands}" class="row m-1">
+            <div class="col-4">
+                <img th:src="@{${brand.logoPath}}" style="width: 100px" class="img-fluid" />
+            </div>
+            <div class="col-8">
+                <div>[[${brand.name}]]</div>
+                <div class="mt-2">
+                    <div th:replace="fragments :: edit('brand', '/brands/edit/' + ${brand.id})"></div>
+                    &nbsp;
+                    <div th:replace="fragments :: delete('brand', ${brand.id}, '/brands/delete/' + ${brand.id}, true)"></div>
+                </div>
+            </div>
+            <div>&nbsp;</div>
+        </div>
+    </div>
+
+    <div th:replace="fragments :: pagination('/brands', 'brands')"></div>
 
     <div th:replace="modal_fragments :: confirm_modal"></div>
 

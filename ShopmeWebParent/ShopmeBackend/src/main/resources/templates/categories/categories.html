@@ -55,7 +55,9 @@
                 <div class="mt-2">
                     <div th:replace="fragments :: status(${category.enabled}, 'category', '/categories/' + ${category.id})"></div>
                     &nbsp;
-                    <div th:replace="fragments :: delete('category', ${category.id}, '/categories/delte/' + ${category.id}, ${!category.hasChildren})"></div>
+                    <div th:replace="fragments :: edit('category', '/categories/edit/' + ${category.id})"></div>
+                    &nbsp;
+                    <div th:replace="fragments :: delete('category', ${category.id}, '/categories/delete/' + ${category.id}, ${!category.hasChildren})"></div>
                 </div>
             </div>
             <div>&nbsp;</div>
@@ -69,7 +71,6 @@
     <th:block th:unless="${null != keyword}">
         <div th:replace="fragments :: pagination('/categories', 'top-level categories')"></div>
     </th:block>
-
 
     <div th:replace="modal_fragments :: confirm_modal"></div>
 
