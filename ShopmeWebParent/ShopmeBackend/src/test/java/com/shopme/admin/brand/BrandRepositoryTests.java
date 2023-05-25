@@ -90,4 +90,5 @@ class BrandRepositoryTests {
 
         Assertions.assertThat(brand).isEmpty();
     }
+
 }
