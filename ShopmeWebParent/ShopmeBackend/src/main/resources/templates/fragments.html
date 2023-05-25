@@ -39,21 +39,21 @@
         </a>
         <a th:if="${!enabled}" class="fas fa-check-circle fa-2x icon-dark"
            th:href="@{${entityURL} + '/enabled/true'}"
-           th:title="'Enable this' + ${entityName}">
+           th:title="'Enable this ' + ${entityName}">
         </a>
     </div>
 
     <div th:fragment="edit(entityName, editURL)" th:remove="tag">
         <a class="fas fa-edit fa-2x icon-green"
            th:href="@{${editURL}}"
-           th:title="'Edit this' + ${entityName}"></a>
+           th:title="'Edit this ' + ${entityName}"></a>
     </div>
 
     <div th:fragment="delete(entityName, entityId, deleteURL, visible)" th:remove="tag">
         <th:block th:if="${visible}">
             <a class="fas fa-trash fa-2x icon-dark link-delete"
                th:href="@{${deleteURL}}"
-               th:title="'Delete this' + ${entityName}"
+               th:title="'Delete this ' + ${entityName}"
                th:entityId="${entityId}">
             </a>
         </th:block>
