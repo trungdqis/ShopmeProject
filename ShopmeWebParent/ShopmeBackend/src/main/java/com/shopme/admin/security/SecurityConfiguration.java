@@ -35,8 +35,7 @@ public class SecurityConfiguration {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeRequests()
                 .antMatchers("/users/**").hasAuthority("Admin")
-                .antMatchers("/categories/**").hasAnyAuthority("Admin", "Editor")
-                .antMatchers("/brands/**").hasAnyAuthority("Admin", "Editor")
+                .antMatchers("/categories/**", "/brands/**").hasAnyAuthority("Admin", "Editor")
                 .antMatchers("/products/**").hasAnyAuthority("Admin", "Salesperson", "Editor", "Shipper")
                 .antMatchers("/questions/**").hasAnyAuthority("Admin", "Assistant")
                 .antMatchers("/reviews/**").hasAnyAuthority("Admin", "Assistant")
