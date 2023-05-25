@@ -28,7 +28,9 @@
             <tbody>
                 <tr th:each="product : ${products}">
                     <td>[[${product.id}]]</td>
-                    <td></td>
+                    <td>
+                        <img th:src="@{${product.mainImagePath}}" style="width: 120px" class="img-fluid" />
+                    </td>
                     <td>[[${product.name}]]</td>
                     <td>[[${product.brand.name}]]</td>
                     <td>[[${product.category.name}]]</td>
