@@ -2,6 +2,7 @@ package com.shopme.admin.category;
 
 import com.shopme.admin.FileUploadUtil;
 import com.shopme.admin.user.UserNotFoundException;
+import com.shopme.admin.user.UserService;
 import com.shopme.common.entity.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -29,12 +30,36 @@ public class CategoryController {
 
     @GetMapping("/categories")
     public String listAll(@Param("sortDir") String sortDir, Model model) {
+        return listByPage(1, sortDir, null, model);
+    }
+
+    @GetMapping("/categories/page/{pageNum}")
+    public String listByPage(@PathVariable(name = "pageNum") int pageNum, @Param("sortDir") String sortDir,
+                             @Param("keyword") String keyword, Model model) {
         if (null == sortDir || sortDir.isEmpty()) {
             sortDir = "asc";
         }
-        List<Category> categories = categoryService.listAll(sortDir);
+
+        CategoryPageInfor pageInfor = new CategoryPageInfor();
+        List<Category> categories = categoryService.listByPage(pageInfor, pageNum, sortDir, keyword);
+
+        long startCount = (long) (pageNum - 1) * CategoryService.ROOT_CATEGORIES_PER_PAGE + 1;
+        long endCount = startCount + CategoryService.ROOT_CATEGORIES_PER_PAGE - 1;
+
+        if (endCount > pageInfor.getTotalElements()) {
+            endCount = pageInfor.getTotalElements();
+        }
+
         String reverseSortDir = "asc".equals(sortDir) ? "desc" : "asc";
 
+        model.addAttribute("totalPages", pageInfor.getTotalPages());
+        model.addAttribute("totalItems", pageInfor.getTotalElements());
+        model.addAttribute("currentPage", pageNum);
+        model.addAttribute("sortField", "name");
+        model.addAttribute("sortDir", sortDir);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("startCount", startCount);
+        model.addAttribute("endCount", endCount);
         model.addAttribute("listCategories", categories);
         model.addAttribute("reverseSortDir", reverseSortDir);
 

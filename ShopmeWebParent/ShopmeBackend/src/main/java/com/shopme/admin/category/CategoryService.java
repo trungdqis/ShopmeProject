@@ -2,6 +2,9 @@ package com.shopme.admin.category;
 
 import com.shopme.common.entity.Category;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,10 +21,11 @@ import java.util.TreeSet;
 @Transactional
 public class CategoryService {
 
+    public static final int ROOT_CATEGORIES_PER_PAGE = 4;
     @Autowired
     private CategoryRepository categoryRepository;
 
-    public List<Category> listAll(String sortDir) {
+    public List<Category> listByPage(CategoryPageInfor pageInfor, int pageNum, String sortDir, String keyword) {
         Sort sort = Sort.by("name");
 
         if ("asc".equals(sortDir)) {
@@ -30,8 +34,31 @@ public class CategoryService {
             sort = sort.descending();
         }
 
-        List<Category> rootCategories = categoryRepository.findRootCategories(sort);
-        return listHierarchicalCategories(rootCategories, sortDir);
+        Pageable pageable = PageRequest.of(pageNum - 1, ROOT_CATEGORIES_PER_PAGE, sort);
+        Page<Category> pageCategories = null;
+
+        if (null != keyword && !keyword.isEmpty()) {
+            pageCategories = categoryRepository.search(keyword, pageable);
+        } else {
+            pageCategories = categoryRepository.findRootCategories(pageable);
+        }
+
+        List<Category> rootCategories = pageCategories.getContent();
+
+        pageInfor.setTotalElements(pageCategories.getTotalElements());
+        pageInfor.setTotalPages(pageCategories.getTotalPages());
+
+        if (null != keyword && !keyword.isEmpty()) {
+            List<Category> searchResult = pageCategories.getContent();
+
+            for (Category category : searchResult) {
+                category.setHasChildren(!category.getChildren().isEmpty());
+            }
+
+            return searchResult;
+        } else {
+            return listHierarchicalCategories(rootCategories, sortDir);
+        }
     }
 
     private List<Category> listHierarchicalCategories(List<Category> rootCategories, String sortDir) {

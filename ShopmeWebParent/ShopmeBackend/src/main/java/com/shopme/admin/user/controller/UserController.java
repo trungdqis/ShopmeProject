@@ -9,6 +9,7 @@ import com.shopme.admin.user.export.UserPdfExporter;
 import com.shopme.common.entity.Role;
 import com.shopme.common.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -43,8 +44,8 @@ public class UserController {
     @GetMapping("/users/page/{pageNum}")
     public String listByPage(@PathVariable(name = "pageNum") int pageNum, Model model, @Param("sortField") String sortField,
                              @Param("sortDir") String sortDir, @Param("keyword") String keyword) {
-        var page = userService.listByPage(pageNum, sortField, sortDir, keyword);
-        var listUsers = page.getContent();
+        Page<User> page = userService.listByPage(pageNum, sortField, sortDir, keyword);
+        List<User> listUsers = page.getContent();
 
         long startCount = (long) (pageNum - 1) * UserService.USERS_PER_PAGE + 1;
         long endCount = startCount + UserService.USERS_PER_PAGE - 1;
