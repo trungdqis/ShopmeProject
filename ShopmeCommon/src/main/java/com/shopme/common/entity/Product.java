@@ -1,8 +1,11 @@
 package com.shopme.common.entity;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -57,8 +60,11 @@ public class Product {
     @JoinColumn(name = "brand_id")
     private Brand brand;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ProductImage> images = new HashSet<>();
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductDetail> details = new ArrayList<>();
 
     public Integer getId() {
         return id;
@@ -237,5 +243,32 @@ public class Product {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 '}';
+    }
+
+    public List<ProductDetail> getDetails() {
+        return details;
+    }
+
+    public void setDetails(List<ProductDetail> details) {
+        this.details = details;
+    }
+
+    public void addDetail(String name, String value) {
+        this.details.add(new ProductDetail(name, value, this));
+    }
+
+    public void addDetail(Integer id, String name, String value) {
+        this.details.add(new ProductDetail(id, name, value, this));
+    }
+
+    public boolean containsImageName(String imageName) {
+
+        for (ProductImage image : images) {
+            if (imageName.equals(image.getName())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

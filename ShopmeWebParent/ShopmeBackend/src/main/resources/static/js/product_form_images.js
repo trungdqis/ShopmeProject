@@ -1,29 +1,34 @@
 let extraImagesCount = 0;
-let dropdownBrands = $("#brand");
-let dropdownCategories = $("#category");
 
 $(document).ready(function() {
-    $("#shortDescription").richText();
-    $("#fullDescription").richText();
-
-    dropdownBrands.change(function() {
-        dropdownCategories.empty();
-        getCategories();
-    })
-
-    getCategories();
-
     $("input[name='extraImage']").each(function(index) {
         extraImagesCount++;
 
         $(this).change(function() {
+            if (!checkFileSize(this)) {
+                return;
+            }
+
             showExtraImageThumbnail(this, index);
+        })
+    })
+
+    $("a[name='linkRemoveExtraImage']").each(function(index) {
+        $(this).click(function() {
+            removeExtraImage(index);
         })
     })
 })
 
 function showExtraImageThumbnail(fileInput, index) {
     let file = fileInput.files[0];
+    let fileName = file.name;
+    let imageNameHiddenField = $("#imageName" + index);
+
+    if (imageNameHiddenField.length) {
+        imageNameHiddenField.val(fileName);
+    }
+
     let reader = new FileReader();
     reader.onload = function(e) {
         $("#extraThumbnail" + index).attr("src", e.target.result);
@@ -68,37 +73,4 @@ function addNextExtraImageSection(index) {
 
 function removeExtraImage(index) {
     $("#divExtraImage" + index).remove();
-}
-
-function getCategories() {
-    let brandId = dropdownBrands.val();
-    let url = brandModuleURL + "/" + brandId + "/categories";
-
-    $.get(url, function(responseJson) {
-        $.each(responseJson, function(index, category) {
-            $("<option>").val(category.id).text(category.name).appendTo(dropdownCategories);
-        })
-    })
-}
-
-function checkUnique(form) {
-    let productId = $("#id").val();
-    let productName = $("#name").val();
-    let csrfValue = $("input[name='_csrf']").val();
-
-    let params = {id: productId, name: productName, _csrf: csrfValue};
-
-    $.post(checkUniqueUrl, params, function(response) {
-        if ("OK" === response) {
-            form.submit();
-        } else if ("Duplicate" === response) {
-            showWarningModal("There is another product having same name " + productName);
-        } else {
-            showErrorModal("Unknown response from the server")
-        }
-    }).fail(function() {
-        showErrorModal("Could not connect to the server")
-    })
-
-    return false;
 }

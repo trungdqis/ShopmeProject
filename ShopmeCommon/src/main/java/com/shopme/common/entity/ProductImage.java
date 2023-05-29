@@ -8,6 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 @Entity
 @Table(name = "product_images")
@@ -25,6 +26,12 @@ public class ProductImage {
     private Product product;
 
     public ProductImage() {}
+
+    public ProductImage(Integer id, String name, Product product) {
+        this.id = id;
+        this.name = name;
+        this.product = product;
+    }
 
     public ProductImage(String name, Product product) {
         this.name = name;
@@ -53,5 +60,10 @@ public class ProductImage {
 
     public void setProduct(Product product) {
         this.product = product;
+    }
+
+    @Transient
+    public String getImagePath() {
+        return "/product-images/" + product.getId() + "/extras/" + this.name;
     }
 }
