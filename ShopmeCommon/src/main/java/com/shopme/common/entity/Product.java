@@ -271,4 +271,12 @@ public class Product {
 
         return false;
     }
+
+    @Transient
+    public String getShortName() {
+        if (70 < name.length()) {
+            return name.substring(0, 70).concat("...");
+        }
+        return name;
+    }
 }

@@ -10,17 +10,43 @@
         <a th:href="@{/products/export/csv}" class="fas fa-file-csv fa-2x icon-dark mr-2"></a>
     </div>
 
-    <div th:replace="fragments :: search_form_and_message('/products/page/1')"></div>
+    <form th:action="@{/products/page/1}" class="form-inline m-3" id="searchForm">
+        <input type="hidden" name="sortField" th:value="${sortField}" />
+        <input type="hidden" name="sortDir" th:value="${sortDir}" />
+
+        Category: &nbsp;
+        <select class="form-control" name="categoryId" id="dropdownCategory">
+            <option value="0">All Categories</option>
+            <th:block th:each="category : ${categories}">
+                <option th:value="${category.id}" th:selected="(${category.id} == ${categoryId})">[[${category.name}]]</option>
+            </th:block>
+        </select>
+
+        Filter: &nbsp;
+        <input type="search" name="keyword" th:value="${keyword}" class="form-control" required />
+        &nbsp;&nbsp;
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-search"></i>
+        </button>
+        &nbsp;&nbsp;
+        <button type="button" class="btn btn-secondary" onclick="clearFilter()">
+            <i class="fas fa-eraser"></i>
+        </button>
+    </form>
+
+    <div th:if="${null != message}" class="alert alert-success text-center">
+        [[${message}]]
+    </div>
 
     <div class="full-details">
         <table class="table table-bordered table-striped table-hover table-responsive-xl">
             <thead class="thead-dark">
                 <tr>
-                    <th>ID</th>
+                    <th th:replace="fragments :: column_link('/products', 'id', 'ID', 'none')"></th>
                     <th>Main Image</th>
-                    <th>Product Name</th>
-                    <th>Brand</th>
-                    <th>Category</th>
+                    <th th:replace="fragments :: column_link('/products', 'name', 'Product Name', 'none')"></th>
+                    <th th:replace="fragments :: column_link('/products', 'brand', 'Brand', 'none')"></th>
+                    <th th:replace="fragments :: column_link('/products', 'category', 'Category', 'none')"></th>
                     <th>Enabled</th>
                     <th></th>
                 </tr>
@@ -34,7 +60,7 @@
                     <td>
                         <a class="link-detail"
                            th:href="@{'/products/detail/' + ${product.id}}"
-                           title="View details of this product">[[${product.name}]]
+                           th:title="${product.name}">[[${product.shortName}]]
                         </a>
                     </td>
                     <td>[[${product.brand.name}]]</td>
@@ -60,10 +86,11 @@
     <div class="modal fade" id="detailModal">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
-
             </div>
         </div>
     </div>
+
+    <div th:replace="fragments :: pagination('/products', 'products')"></div>
 
     <div th:replace="fragments :: footer"></div>
 </div>
@@ -82,6 +109,10 @@
             let linkDetailURL = $(this).attr("href");
 
             $("#detailModal").modal("show").find(".modal-content").load(linkDetailURL);
+        })
+
+        $("#dropdownCategory").on("change", function() {
+            $("#searchForm").submit();
         })
     })
 </script>

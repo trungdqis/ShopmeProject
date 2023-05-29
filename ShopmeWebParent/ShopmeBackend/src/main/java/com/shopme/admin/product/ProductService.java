@@ -2,6 +2,10 @@ package com.shopme.admin.product;
 
 import com.shopme.common.entity.Product;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,11 +17,37 @@ import java.util.NoSuchElementException;
 @Transactional
 public class ProductService {
 
+    public static final int PRODUCTS_PER_PAGE = 5;
+
     @Autowired
     private ProductRepository productRepository;
 
     public List<Product> listAll() {
         return (List<Product>) productRepository.findAll();
+    }
+
+    public Page<Product> listByPage(int pageNum, String sortField, String sortDir, String keyword, Integer categoryId) {
+        Sort sort = Sort.by(sortField);
+
+        sort = "asc".equals(sortDir) ? sort.ascending() : sort.descending();
+
+        Pageable pageable = PageRequest.of(pageNum - 1, PRODUCTS_PER_PAGE, sort);
+
+        if (null != keyword && !keyword.isEmpty()) {
+            if (null != categoryId && 0 < categoryId) {
+                String categoryIdMatch = "-" + categoryId + "-";
+                return productRepository.searchInCategory(categoryId, categoryIdMatch, keyword, pageable);
+            }
+
+            return productRepository.findAll(keyword, pageable);
+        }
+
+        if (null != categoryId && 0 < categoryId) {
+            String categoryIdMatch = "-" + categoryId + "-";
+            return productRepository.findAllInCategory(categoryId, categoryIdMatch, pageable);
+        }
+
+        return productRepository.findAll(pageable);
     }
 
     public Product save(Product product) {

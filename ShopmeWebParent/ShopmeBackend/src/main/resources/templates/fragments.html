@@ -19,8 +19,10 @@
 
     <th th:fragment="column_link(moduleURL, fieldName, columnLabel, removeTag)" th:remove="${removeTag}">
       <a class="text-white"
-         th:href="@{${moduleURL} + '/page/' + ${currentPage} + '?sortField=' + ${fieldName} + '&sortDir=' + ${fieldName != sortField ? sortDir : reverseSortDir}
-                               + ${null != keyword ? '&keyword=' + keyword : ''}}">
+         th:href="@{${moduleURL} + '/page/' + ${currentPage} + '?sortField=' + ${fieldName}
+         + '&sortDir=' + ${fieldName != sortField ? sortDir : reverseSortDir}
+         + ${null != keyword ? '&keyword=' + keyword : ''}
+         + ${null != categoryId ? '&categoryId=' + categoryId : ''}}">
         [[${columnLabel}]]
       </a>
       <span th:if="${fieldName == sortField}"
@@ -30,7 +32,8 @@
     <a th:fragment="page_link(moduleURL, pageNum, label)"
        class="page-link"
        th:href="@{${moduleURL} + '/page/' + ${pageNum} + '?sortField=' + ${sortField}
-                    + '&sortDir=' + ${sortDir} + ${null != keyword ? '&keyword=' + keyword : ''}}">[[${label}]]</a>
+                    + '&sortDir=' + ${sortDir} + ${null != keyword ? '&keyword=' + keyword : ''}
+                    + ${null != categoryId ? '&categoryId=' + categoryId : ''}}">[[${label}]]</a>
 
     <div th:fragment="status(enabled, entityName, entityURL)" th:remove="tag">
         <a th:if="${enabled}" class="fas fa-check-circle fa-2x icon-green"
@@ -64,7 +67,7 @@
             <span>Showing [[${entityName}]] # [[${startCount}]] to [[${endCount}]] of [[${totalItems}]]</span>
         </div>
         <div class="text-center m-1" th:unless="${0 < totalItems}">
-            <span>No users found</span>
+            <span>No [[${entityName}]] found</span>
         </div>
 
         <div th:if="${1 < totalPages}">

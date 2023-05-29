@@ -2,12 +2,16 @@ package com.shopme.admin.product;
 
 import com.shopme.admin.FileUploadUtil;
 import com.shopme.admin.brand.BrandService;
+import com.shopme.admin.category.CategoryService;
 import com.shopme.common.entity.Brand;
+import com.shopme.common.entity.Category;
 import com.shopme.common.entity.Product;
 import com.shopme.common.entity.ProductImage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -34,18 +38,56 @@ public class ProductController {
 
     private final ProductService productService;
     private final BrandService brandService;
+    private final CategoryService categoryService;
 
     @Autowired
-    public ProductController(ProductService productService, BrandService brandService) {
+    public ProductController(ProductService productService, BrandService brandService, CategoryService categoryService) {
         this.productService = productService;
         this.brandService = brandService;
+        this.categoryService = categoryService;
     }
 
     @GetMapping("/products")
-    public String listAll(Model model) {
-        List<Product> products = productService.listAll();
+    public String listFirstPage(Model model) {
+        return listByPage(1, "name", "asc", null, 0, model);
+    }
 
+    @GetMapping("/products/page/{pageNum}")
+    public String listByPage(@PathVariable(name = "pageNum") int pageNum,
+                             @Param("sortField") String sortField,
+                             @Param("sortDir") String sortDir,
+                             @Param("keyword") String keyword,
+                             @Param("categoryId") Integer categoryId,
+                             Model model) {
+        Page<Product> pageProducts = productService.listByPage(pageNum, sortField, sortDir, keyword, categoryId);
+        List<Product> products = pageProducts.getContent();
+
+        List<Category> categories = categoryService.listCategoriesUsedInForm();
+
+        long startCount = (long) (pageNum - 1) * ProductService.PRODUCTS_PER_PAGE + 1;
+        long endCount = startCount + ProductService.PRODUCTS_PER_PAGE - 1;
+
+        if (endCount > pageProducts.getTotalElements()) {
+            endCount = pageProducts.getTotalElements();
+        }
+
+        String reverseSortDir = "asc".equals(sortDir) ? "desc" : "asc";
+
+        if (null != categoryId) {
+            model.addAttribute("categoryId", categoryId);
+        }
+
+        model.addAttribute("currentPage", pageNum);
+        model.addAttribute("totalPages", pageProducts.getTotalPages());
+        model.addAttribute("totalItems", pageProducts.getTotalElements());
+        model.addAttribute("sortField", sortField);
+        model.addAttribute("sortDir", sortDir);
+        model.addAttribute("reverseSortDir", reverseSortDir);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("startCount", startCount);
+        model.addAttribute("endCount", endCount);
         model.addAttribute("products", products);
+        model.addAttribute("categories", categories);
 
         return "products/products";
     }
