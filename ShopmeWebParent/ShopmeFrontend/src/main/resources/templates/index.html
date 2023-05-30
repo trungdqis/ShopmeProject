@@ -1,14 +1,17 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="fragments :: page_head(${pageTitle}, 'none')"></head>
+<head th:replace="fragments :: page_head('Shopme', 'none')"></head>
 <body>
     <div class="container-fluid">
         <div th:replace="navigation :: header_menu"></div>
+
+        <div th:replace="navigation :: search_nav"></div>
+
         <div>
             <h1>Shopping by Categories</h1>
         </div>
         <div class="row">
-            <div class="col" th:each="category : ${categories}">
+            <div class="colsm-2" th:each="category : ${categories}">
                 <div><img th:src="@{${category.imagePath}}" width="80"/></div>
                 <div>
                     <a th:href="@{'/c/' + ${category.alias}}">[[${category.name}]]</a>

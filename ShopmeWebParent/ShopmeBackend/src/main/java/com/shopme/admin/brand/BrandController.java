@@ -1,8 +1,6 @@
 package com.shopme.admin.brand;
 
 import com.shopme.admin.FileUploadUtil;
-import com.shopme.admin.category.CategoryNotFoundException;
-import com.shopme.admin.category.CategoryPageInfor;
 import com.shopme.admin.category.CategoryService;
 import com.shopme.common.entity.Brand;
 import com.shopme.common.entity.Category;

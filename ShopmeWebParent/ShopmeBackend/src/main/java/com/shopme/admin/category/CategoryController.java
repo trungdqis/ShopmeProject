@@ -2,6 +2,7 @@ package com.shopme.admin.category;
 
 import com.shopme.admin.FileUploadUtil;
 import com.shopme.common.entity.Category;
+import com.shopme.common.exception.CategoryNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Controller;
