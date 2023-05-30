@@ -10,6 +10,43 @@
     <script type="text/javascript" th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
 </head>
 <body>
+    <a th:fragment="page_link(moduleURL, pageNum, label)"
+       class="page-link"
+       th:href="@{${moduleURL} + '/page/' + ${pageNum} + '?sortField=' + ${sortField}
+                        + '&sortDir=' + ${sortDir} + ${null != keyword ? '&keyword=' + keyword : ''}}">[[${label}]]</a>
+
+    <div th:fragment="pagination(moduleURL, entityName)" th:remove="tag">
+        <div class="text-center m-1" th:if="${0 < totalItems}">
+            <span>Showing [[${entityName}]] # [[${startCount}]] to [[${endCount}]] of [[${totalItems}]]</span>
+        </div>
+        <div class="text-center m-1" th:unless="${0 < totalItems}">
+            <span>No [[${entityName}]] found</span>
+        </div>
+
+        <div th:if="${1 < totalPages}">
+            <nav>
+                <ul class="pagination justify-content-center flex-wrap">
+                    <li th:class="${1 < currentPage ? 'page-item' : 'page-item disabled'}">
+                        <a th:replace="fragments :: page_link(${moduleURL}, 1, 'First')"></a>
+                    </li>
+                    <li th:class="${1 < currentPage ? 'page-item' : 'page-item disabled'}">
+                        <a th:replace="fragments :: page_link(${moduleURL},${currentPage - 1}, 'Previous')"></a>
+                    </li>
+                    <li th:class="${i != currentPage ? 'page-item' : 'page-item active'}"
+                        th:each="i : ${#numbers.sequence(1, totalPages)}">
+                        <a th:replace="fragments :: page_link(${moduleURL}, ${i}, ${i})"></a>
+                    </li>
+                    <li th:class="${totalPages > currentPage ? 'page-item' : 'page-item disabled'}">
+                        <a th:replace="fragments :: page_link(${moduleURL}, ${currentPage + 1}, 'Next')"></a>
+                    </li>
+                    <li th:class="${totalPages > currentPage ? 'page-item' : 'page-item disabled'}">
+                        <a th:replace="fragments :: page_link(${moduleURL}, ${totalPages}, 'Last')"></a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
     <div th:fragment="footer" class="text-center m-3">
         <p>Shopme Control Panel - Copyright &copy; Shopme</p>
     </div>
