@@ -6,6 +6,7 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.util.Objects;
 
 @Entity
 @Table(name = "settings")
@@ -30,6 +31,10 @@ public class Setting {
         this.category = category;
     }
 
+    public Setting(String key) {
+        this.key = key;
+    }
+
     public String getKey() {
         return key;
     }
@@ -52,5 +57,26 @@ public class Setting {
 
     public void setCategory(SettingCategory category) {
         this.category = category;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Setting setting = (Setting) o;
+        return Objects.equals(key, setting.key) && Objects.equals(value, setting.value) && category == setting.category;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(key, value, category);
+    }
+
+    @Override
+    public String toString() {
+        return "Setting{" +
+                "key='" + key + '\'' +
+                ", value='" + value + '\'' +
+                '}';
     }
 }
