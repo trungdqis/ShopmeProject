@@ -60,6 +60,7 @@
             <label class="col-sm-4 col-form-label">Decimal Digits:</label>
             <div class="col-sm-8">
                 <select name="DECIMAL_DIGITS" class="form-control">
+                    <option value="0" th:selected="(0 == ${DECIMAL_DIGITS})">1</option>
                     <option value="1" th:selected="(1 == ${DECIMAL_DIGITS})">1</option>
                     <option value="2" th:selected="(2 == ${DECIMAL_DIGITS})">2</option>
                     <option value="3" th:selected="(3 == ${DECIMAL_DIGITS})">3</option>

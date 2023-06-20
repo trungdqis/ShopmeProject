@@ -60,16 +60,25 @@ public class Setting {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Setting setting = (Setting) o;
-        return Objects.equals(key, setting.key) && Objects.equals(value, setting.value) && category == setting.category;
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((key == null) ? 0 : key.hashCode());
+        return result;
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(key, value, category);
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Setting other = (Setting) obj;
+        if (key == null) {
+            return other.key == null;
+        } else return key.equals(other.key);
     }
 
     @Override
