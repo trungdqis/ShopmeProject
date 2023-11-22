@@ -32,9 +32,7 @@ public class SettingFilter implements Filter {
 
         List<Setting> generalSettings = settingService.getGeneralSettings();
 
-        generalSettings.forEach(setting -> {
-            servletRequest.setAttribute(setting.getKey(), setting.getValue());
-        });
+        generalSettings.forEach(setting -> servletRequest.setAttribute(setting.getKey(), setting.getValue()));
 
         filterChain.doFilter(servletRequest, servletResponse);
     }
